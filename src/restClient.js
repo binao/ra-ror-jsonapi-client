@@ -11,6 +11,43 @@ import {
 
 import {jsonApiHttpClient, queryParameters } from './fetch';
 
+const transformResource = (json, data) => {
+    if (!data) {
+        return {}
+    }
+    let included = {}; // { 'type/id' => data }
+    if (json.included) {
+        json.included.forEach(dat => included[`${data.type}:${dat.id}`] = dat)
+    }
+    let res = Object.assign({ id: data.id }, data.attributes);
+    if (data.relationships) {
+    Object.keys(data.relationships).forEach(function(key) {
+        const rel = data.relationships[key];
+        if (rel.data && rel.data.type !== undefined) { // has_one/belongs_to
+            res[key + '_id'] = rel.data.id;
+            let relData = included[`${rel.data.type}:${rel.data.id}`]
+            if (relData)
+                res[key] = transformResource(json, relData)
+        } else if (rel.data && rel.data[0] && rel.data[0].type) { // has_many
+            res[key] = []
+            rel.data.forEach(d => {
+                let relData = included[`${d.type}:${d.id}`]
+                if (relData)
+                    res[key].push(transformResource(json, relData))
+            })
+        } else if (rel.links) {
+          // if relationships have a link field
+          var link = rel.links['self'];
+          httpClient(link).then(function(response) {
+            res[key] = { data: response.json.data, count: response.json.data.length };
+            res['count'] = response.json.data.length;
+          });
+        }
+      });
+  }
+  return res;
+}
+
 export default (apiUrl, httpClient = jsonApiHttpClient) => {
     /**
      * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
@@ -29,7 +66,7 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
             const { name, value } = params.filter;
             var query = {
                 'page[offset]': (page - 1) * perPage,
-                'page[limit]': perPage, 
+                'page[limit]': perPage,
             };
             Object.keys(params.filter).forEach(key =>{
                 var filterField = 'filter[' + key +']';
@@ -89,39 +126,26 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
         switch (type) {
         case GET_MANY_REFERENCE:
         case GET_LIST:
-            var jsonData = json.data.map(function (dic) {
-                var interDic = Object.assign({ id: dic.id }, dic.attributes, dic.meta);
-                if (dic.relationships){
-                    Object.keys(dic.relationships).forEach(function(key){
-                        var keyString = key + '_id';
-                        if (dic.relationships[key].data){
-                            //if relationships have a data field --> assume id in data field
-                            interDic[keyString] = dic.relationships[key].data.id;
-                        }else if (dic.relationships[key].links){
-                            //if relationships have a link field
-                            var link = dic.relationships[key].links['self'];
-                            httpClient(link).then(function (response) {
-                                interDic[key] = {'data': response.json.data, 'count': response.json.data.length};
-                                interDic['count'] = response.json.data.length;
-                            });
-                        }
-                    })
-                }
-                return interDic;
-            });
+            var jsonData = json.data.map(d => transformResource(json, d));
+            jsonData._originalJSON = json;
             return { data: jsonData, total: json.meta['record-count'] };
         case GET_MANY:
-                jsonData = json.data.map(function(obj){
-                    return Object.assign({id: obj.id}, obj.attributes);
-                })
-                return {data: jsonData}
+            var jsonData = json.data.map(d => transformResource(json, d));
+            jsonData._originalJSON = json;
+            return { data: jsonData };
         case UPDATE:
         case CREATE:
-            return { data: Object.assign({id: json.data.id}, json.data.attributes) };
+            var jsonData = transformResource(json, json.data);
+            jsonData._originalJSON = json;
+            return { data: jsonData };
         case DELETE:
-            return {data: json}
+            var jsonData = {};
+            jsonData._originalJSON = json;
+            return { data: jsonData };
         default:
-            return {data:json.data};
+            var jsonData = transformResource(json, json.data);
+            jsonData._originalJSON = json;
+            return { data: jsonData };
         }
     };
 
@@ -137,4 +161,3 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
             .then(response => convertHTTPResponseToREST(response, type, resource, params));
     };
 };
-
