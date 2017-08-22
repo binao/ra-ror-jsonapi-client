@@ -9,43 +9,46 @@ import {
     DELETE,
 } from './types';
 
-import {jsonApiHttpClient, queryParameters } from './fetch';
+import { jsonApiHttpClient, queryParameters } from './fetch';
 
 const transformResource = (json, data) => {
-    if (!data) {
-        return {}
-    }
     let included = {}; // { 'type/id' => data }
     if (json.included) {
-        json.included.forEach(dat => included[`${data.type}:${dat.id}`] = dat)
+        json.included.forEach(d => included[`${d.type}:${d.id}`] = d)
     }
-    let res = Object.assign({ id: data.id }, data.attributes);
-    if (data.relationships) {
-    Object.keys(data.relationships).forEach(function(key) {
-        const rel = data.relationships[key];
-        if (rel.data && rel.data.type !== undefined) { // has_one/belongs_to
-            res[key + '_id'] = rel.data.id;
-            let relData = included[`${rel.data.type}:${rel.data.id}`]
-            if (relData)
-                res[key] = transformResource(json, relData)
-        } else if (rel.data && rel.data[0] && rel.data[0].type) { // has_many
-            res[key] = []
-            rel.data.forEach(d => {
-                let relData = included[`${d.type}:${d.id}`]
-                if (relData)
-                    res[key].push(transformResource(json, relData))
-            })
-        } else if (rel.links) {
-          // if relationships have a link field
-          var link = rel.links['self'];
-          httpClient(link).then(function(response) {
-            res[key] = { data: response.json.data, count: response.json.data.length };
-            res['count'] = response.json.data.length;
-          });
+    const _transformResource = (data) => {
+        if (!data) {
+            return {}
         }
-      });
-  }
-  return res;
+        let res = Object.assign({ id: data.id }, data.attributes);
+        if (data.relationships) {
+            Object.keys(data.relationships).forEach(function(key) {
+                const rel = data.relationships[key];
+                if (rel.data && rel.data.type !== undefined) { // has_one/belongs_to
+                    res[key + '_id'] = rel.data.id;
+                    let relData = included[`${rel.data.type}:${rel.data.id}`]
+                    if (relData)
+                        res[key] = _transformResource(relData)
+                } else if (rel.data && rel.data[0] && rel.data[0].type !== undefined) { // has_many
+                    res[key] = []
+                    rel.data.forEach(d => {
+                        let relData = included[`${d.type}:${d.id}`]
+                        if (relData)
+                            res[key].push(_transformResource(relData))
+                    })
+                } else if (rel.links) {
+                  // if relationships have a link field
+                  var link = rel.links['self'];
+                  httpClient(link).then(function(response) {
+                      res[key] = { data: response.json.data, count: response.json.data.length };
+                      res['count'] = response.json.data.length;
+                  });
+                }
+            });
+        }
+        return res
+    }
+    return _transformResource(data);
 }
 
 export default (apiUrl, httpClient = jsonApiHttpClient) => {
