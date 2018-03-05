@@ -130,7 +130,7 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
       case GET_LIST:
           var jsonData = json.data.map(d => transformResource(json, d));
           jsonData._originalJSON = json;
-          return { data: jsonData, total: json.meta['record-count'] };
+          return { data: jsonData, total: headers.has('Total') ? headers.get('Total') : json.meta['record-count'] };
       case GET_MANY:
           var jsonData = json.data.map(d => transformResource(json, d));
           jsonData._originalJSON = json;
