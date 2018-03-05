@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * FIX standard json-api metadata keys ie: page, size, total via @practo
 * NEW ESlint and Prettier support
 
+## [0.1.16-rc.0] - 2017-08-21
+### Added
+- Function transformResource in restClient
+    - for to transform resources and relations
+
+### Changed
+- jsonApiHttpClient now sets headers only if they are empty
+    - Affected headers: `Content-Type`, `Accept`, `Authorization`
+
 ## [0.1.15] - 2017-04-10
 
 * NEW Reference Field Functionality for GET_MANY and GET_MANY_REFERENCE

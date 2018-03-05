@@ -1,6 +1,6 @@
 {
   "name": "aor-jsonapi-client",
-  "version": "0.2.0",
+  "version": "0.2.1-rc.0",
   "description": "JSON API REST Client for Admin-on-rest",
   "main": "./build/restClient.js",
   "scripts": {
