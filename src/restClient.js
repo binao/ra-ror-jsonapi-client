@@ -113,47 +113,6 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
         default:
             throw new Error(`Unsupported fetch action type ${type}`);
         }
-        if (order === "ASC") {
-          query.sort = field;
-        } else {
-          query.sort = "-" + field;
-        }
-        url = `${apiUrl}/${resource}?${queryParameters(query)}`;
-        break;
-      case GET_ONE:
-        url = `${apiUrl}/${resource}/${params.id}`;
-        break;
-      case GET_MANY:
-        const query = { "filter[id]": params.ids.toString() };
-        url = `${apiUrl}/${resource}?${queryParameters(query)}`;
-        break;
-      case UPDATE:
-        url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = "PATCH";
-        var attrs = {};
-        Object.keys(params.data).forEach(
-          key => (attrs[key] = params.data[key])
-        );
-        const updateParams = {
-          data: { type: resource, id: params.id, attributes: attrs }
-        };
-        options.body = JSON.stringify(updateParams);
-        break;
-      case CREATE:
-        url = `${apiUrl}/${resource}`;
-        options.method = "POST";
-        const createParams = {
-          data: { type: resource, attributes: params.data }
-        };
-        options.body = JSON.stringify(createParams);
-        break;
-      case DELETE:
-        url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = "DELETE";
-        break;
-      default:
-        throw new Error(`Unsupported fetch action type ${type}`);
-    }
     return { url, options };
   };
 
