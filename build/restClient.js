@@ -30,10 +30,11 @@ var transformResource = function transformResource(json, data) {
                     if (relData) res[key] = _transformResource(relData);
                 } else if (rel.data && rel.data[0] && rel.data[0].type !== undefined) {
                     // has_many
-                    res[key] = [];
+                    var attributesKey = key + '_attributes';
+                    res[attributesKey] = [];
                     rel.data.forEach(function (d) {
                         var relData = included[d.type + ':' + d.id];
-                        if (relData) res[key].push(_transformResource(relData));
+                        if (relData) res[attributesKey].push(_transformResource(relData));
                     });
                 } else if (rel.links) {
                     // if relationships have a link field
@@ -76,8 +77,8 @@ exports.default = function (apiUrl) {
                     value = _params$filter.value;
 
                 var _query = {
-                    'page[offset]': (page - 1) * perPage,
-                    'page[limit]': perPage
+                    'page[number]': page,
+                    'page[size]': perPage
                 };
                 Object.keys(params.filter).forEach(function (key) {
                     var filterField = 'filter[' + key + ']';

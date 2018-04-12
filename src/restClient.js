@@ -29,11 +29,12 @@ const transformResource = (json, data) => {
                     if (relData)
                         res[key] = _transformResource(relData)
                 } else if (rel.data && rel.data[0] && rel.data[0].type !== undefined) { // has_many
-                    res[key] = []
+                    let attributesKey = `${key}_attributes`
+                    res[attributesKey] = []
                     rel.data.forEach(d => {
                         let relData = included[`${d.type}:${d.id}`]
                         if (relData)
-                            res[key].push(_transformResource(relData))
+                            res[attributesKey].push(_transformResource(relData))
                     })
                 } else if (rel.links) {
                   // if relationships have a link field
@@ -67,8 +68,8 @@ export default (apiUrl, httpClient = jsonApiHttpClient) => {
             const { field, order } = params.sort;
             const { name, value } = params.filter;
             var query = {
-                'page[offset]': (page - 1) * perPage,
-                'page[limit]': perPage,
+                'page[number]': page,
+                'page[size]': perPage,
             };
             Object.keys(params.filter).forEach(key =>{
                 var filterField = 'filter[' + key +']';
