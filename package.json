@@ -1,7 +1,7 @@
 {
-  "name": "aor-jsonapi-client",
-  "version": "0.2.1-rc.0",
-  "description": "JSON API REST Client for Admin-on-rest",
+  "name": "ra-ror-jsonapi-client",
+  "version": "2.0.0",
+  "description": "Rails JSON API REST Client for react-admin",
   "main": "./build/restClient.js",
   "scripts": {
     "build": "babel --presets es2015 src --out-dir build",
@@ -10,20 +10,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moonlight-labs/aor-jsonapi-client.git"
+    "url": "git+https://github.com/binao/ra-ror-jsonapi-client.git"
   },
   "keywords": [
     "react",
-    "admin-on-rest",
+    "react-admin",
+    "ror",
+    "rails",
     "json-api",
     "rest-client"
   ],
   "author": "Max Schridde",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/moonlight-labs/aor-jsonapi-client/issues"
+    "url": "https://github.com/binao/ra-ror-jsonapi-client/issues"
   },
-  "homepage": "https://github.com/moonlight-labs/aor-jsonapi-client#readme",
+  "homepage": "https://github.com/binao/ra-ror-jsonapi-client#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.24.0",

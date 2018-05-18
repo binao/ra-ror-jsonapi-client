@@ -23,14 +23,14 @@ var transformResource = function transformResource(json, data) {
         if (data.relationships) {
             Object.keys(data.relationships).forEach(function (key) {
                 var rel = data.relationships[key];
+                var attributesKey = key + '_attributes';
                 if (rel.data && rel.data.type !== undefined) {
                     // has_one/belongs_to
                     res[key + '_id'] = rel.data.id;
                     var relData = included[rel.data.type + ':' + rel.data.id];
-                    if (relData) res[key] = _transformResource(relData);
+                    if (relData) res[attributesKey] = _transformResource(relData);
                 } else if (rel.data && rel.data[0] && rel.data[0].type !== undefined) {
                     // has_many
-                    var attributesKey = key + '_attributes';
                     res[attributesKey] = [];
                     rel.data.forEach(function (d) {
                         var relData = included[d.type + ':' + d.id];

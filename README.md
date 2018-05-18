@@ -1,20 +1,20 @@
-# JSON API REST client for Admin-on-rest.
+# Rails JSON API REST client for react-admin.
 
-A JSONAPI compatible adapter for Admin-on-REST that allows for rapidly building admin interfaces in React using the AOR framework.
+A JSONAPI compatible adapter for react-admin that allows for rapidly building admin interfaces in React using the RA framework.
 
 ## Installation
 
-aor-jsonapi-client is available from npm. You can install it (and its required dependencies)
+ra-ror-jsonapi-client is available from npm. You can install it (and its required dependencies)
 using:
 
 ```sh
-npm install aor-jsonapi-client
+npm install ra-ror-jsonapi-client
 ```
 
 It can also be installed using yarn:
 
 ```sh
-yarn add aor-jsonapi-client
+yarn add ra-ror-jsonapi-client
 ```
 
 ## Usage
@@ -22,13 +22,13 @@ yarn add aor-jsonapi-client
 ```js
 //in app.js
 import React from "react";
-import { Admin, Resource } from "admin-on-rest";
-import jsonAPIRestClient from "aor-jsonapi-client/build/restClient";
+import { Admin, Resource } from "react-admin";
+import dataProvider from "ra-ror-jsonapi-client/build/restClient";
 
 const restClient = jsonAPIRestClient("http://localhost:3000");
 
 const App = () => (
-  <Admin dashboard={Dashboard} restClient={restClient}>
+  <Admin dataProvider={dataProvider}>
     ...
   </Admin>
 );

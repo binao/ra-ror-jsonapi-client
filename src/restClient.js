@@ -23,13 +23,13 @@ const transformResource = (json, data) => {
         if (data.relationships) {
             Object.keys(data.relationships).forEach(function(key) {
                 const rel = data.relationships[key];
+                let attributesKey = `${key}_attributes`
                 if (rel.data && rel.data.type !== undefined) { // has_one/belongs_to
                     res[key + '_id'] = rel.data.id;
                     let relData = included[`${rel.data.type}:${rel.data.id}`]
                     if (relData)
-                        res[key] = _transformResource(relData)
+                        res[attributesKey] = _transformResource(relData)
                 } else if (rel.data && rel.data[0] && rel.data[0].type !== undefined) { // has_many
-                    let attributesKey = `${key}_attributes`
                     res[attributesKey] = []
                     rel.data.forEach(d => {
                         let relData = included[`${d.type}:${d.id}`]
