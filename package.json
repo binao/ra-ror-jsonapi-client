@@ -1,6 +1,6 @@
 {
   "name": "ra-ror-jsonapi-client",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Rails JSON API REST Client for react-admin",
   "main": "./build/restClient.js",
   "scripts": {
